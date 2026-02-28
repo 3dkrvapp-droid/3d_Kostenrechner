@@ -56,7 +56,6 @@ fun SpoolManagementScreen(
     var spoolToEdit by remember { mutableStateOf<Spool?>(null) }
 
     Scaffold(
-        topBar = { TopAppBar(title = { Text("Lagerverwaltung") }) },
         floatingActionButton = {
             FloatingActionButton(onClick = { navController.navigate("addSpool") }) {
                 Icon(Icons.Default.Add, contentDescription = "Spule hinzufügen")

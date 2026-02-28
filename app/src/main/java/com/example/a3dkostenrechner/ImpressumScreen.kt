@@ -59,7 +59,7 @@ fun ImpressumScreen(navController: NavHostController) {
             Spacer(modifier = Modifier.height(8.dp))
 
             Text("Tätigkeit:", fontWeight = FontWeight.Bold)
-            Text("Private Entwicklung und Veröffentlichung einer Open-Source-Software (Kostenrechner-App) ohne gewerbliche Tätigkeit im Sinne der österreichischen Gewerbeordnung.")
+            Text("Private Entwicklung und Veröffentlichung einer Open-Source-Software (3dkrv - 3D Druck Kosten Rechner Verwaltung) ohne gewerbliche Tätigkeit im Sinne der österreichischen Gewerbeordnung.")
 
             HorizontalDivider(modifier = Modifier.padding(vertical = 16.dp))
 

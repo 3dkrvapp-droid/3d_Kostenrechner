@@ -39,6 +39,7 @@ fun GuideScreen(navController: NavHostController) {
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             Text("Willkommen bei 3dkrv!", style = MaterialTheme.typography.headlineSmall)
+            Text("3dkrv steht für: 3D Druckkostenrechner und Verwaltung.", fontWeight = FontWeight.Bold)
             Text("Diese App hilft dir, die Kosten deiner 3D-Drucke zu berechnen und dein Filament-Lager zu verwalten.")
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -56,7 +57,7 @@ fun GuideScreen(navController: NavHostController) {
             Spacer(modifier = Modifier.height(16.dp))
 
             Text("Projekte", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
-            Text("Wenn du im Rechner eine Berechnung im Lager-Modus durchführst, kannst du sie als Projekt speichern. Im 'Mehr' -> 'Projekte'-Menü findest du eine Liste all deiner gespeicherten Projekte und kannst dir deren Details ansehen.")
+            Text("Wenn du im Rechner eine Berechnung im Lager-Modus durchführst, kannst du sie als Projekt speichern. Im 'Mehr' -> 'Gespeicherte Projekte'-Menü findest du eine Liste all deiner gespeicherten Projekte und kannst dir deren Details ansehen.")
 
             Spacer(modifier = Modifier.height(16.dp))
 

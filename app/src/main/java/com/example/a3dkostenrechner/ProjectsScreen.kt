@@ -51,7 +51,7 @@ fun ProjectsScreen(
         ) {
             if (projects.isEmpty()) {
                 item {
-                    Text("Noch keine Projekte gespeichert.")
+                    Text("Noch keine Projekte gespeichert. Bestätige einen Druck im Rechner, um ein Projekt anzulegen.")
                 }
             } else {
                 items(projects, key = { it.id }) { project ->

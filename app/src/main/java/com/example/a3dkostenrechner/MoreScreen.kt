@@ -43,7 +43,6 @@ fun MoreScreen(navController: NavHostController) {
                 .padding(innerPadding)
                 .verticalScroll(rememberScrollState())
         ) {
-            // Main Links
             ListItem(
                 headlineContent = { Text("Anleitung") },
                 trailingContent = { Icon(Icons.Default.ChevronRight, contentDescription = null) },
@@ -72,7 +71,6 @@ fun MoreScreen(navController: NavHostController) {
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            // Donate Button
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -92,7 +90,6 @@ fun MoreScreen(navController: NavHostController) {
             
             Spacer(modifier = Modifier.weight(1f))
 
-            // App Info
             Column(modifier = Modifier.padding(16.dp), horizontalAlignment = Alignment.CenterHorizontally) {
                  Text("Version: $versionName", style = MaterialTheme.typography.bodySmall)
             }
