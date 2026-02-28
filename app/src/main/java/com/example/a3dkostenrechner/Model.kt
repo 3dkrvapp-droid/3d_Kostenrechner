@@ -16,7 +16,7 @@ data class Spool(
     val color: String,
     val manufacturer: String? = null,
     val initialWeight: Int, // in grams
-    val remainingWeight: Int, // in grams
+    var remainingWeight: Int, // in grams
     val purchasePrice: Float
 ) {
     val pricePerGram: Float
@@ -40,10 +40,6 @@ data class Project(
     val totalCost: Float
 )
 
-enum class AppTheme {
-    SYSTEM, LIGHT, DARK
-}
-
 @Immutable
 data class CalculationSettings(
     val useInventory: Boolean = true,
@@ -53,6 +49,5 @@ data class CalculationSettings(
     val hourlyRate: String = "25",
     val workingTime: String = "",
     val includeProfit: Boolean = false,
-    val profitMargin: String = "",
-    val appTheme: AppTheme = AppTheme.SYSTEM
+    val profitMargin: String = ""
 )

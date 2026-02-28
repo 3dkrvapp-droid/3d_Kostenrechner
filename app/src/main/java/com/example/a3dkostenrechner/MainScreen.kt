@@ -75,7 +75,6 @@ fun MainScreen(mainViewModel: MainViewModel) {
         NavHost(navController, startDestination = Screen.Calculator.route, Modifier.padding(innerPadding)) {
             composable(Screen.Calculator.route) {
                 CostCalculatorScreen(
-                    materials = materials,
                     machines = machines,
                     settings = settings,
                     onSettingsChange = { mainViewModel.updateSettings(it) },
@@ -106,11 +105,7 @@ fun MainScreen(mainViewModel: MainViewModel) {
                 StatisticsScreen(viewModel = statisticsViewModel)
             }
             composable("settings") {
-                SettingsScreen(
-                    navController = navController,
-                    settings = settings,
-                    onSettingsChange = { mainViewModel.updateSettings(it) }
-                )
+                SettingsScreen(navController = navController)
             }
             composable("addSpool") {
                 AddSpoolScreen(
