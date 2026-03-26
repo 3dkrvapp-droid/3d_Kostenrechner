@@ -12,6 +12,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
@@ -31,10 +32,10 @@ fun CostCalculatorScreen(
     val coroutineScope = rememberCoroutineScope()
 
     var selectedSpool by remember(settings.useInventory, spools) { mutableStateOf(spools.firstOrNull()) }
-    var materialWeight by remember { mutableStateOf("") }
+    var materialWeightInput by remember { mutableStateOf("") }
 
     var selectedMachine by remember(machines) { mutableStateOf(machines.firstOrNull()) }
-    var printDuration by remember { mutableStateOf("") }
+    var printDurationInput by remember { mutableStateOf("") }
 
     var totalCost by remember { mutableStateOf<Float?>(null) }
 
@@ -45,6 +46,7 @@ fun CostCalculatorScreen(
     var profitResult by remember { mutableStateOf<Float?>(null) }
 
     var showSaveProjectDialog by remember { mutableStateOf(false) }
+    var projectNameInput by remember { mutableStateOf("") }
 
     val context = LocalContext.current
 
@@ -55,16 +57,15 @@ fun CostCalculatorScreen(
     }
 
     if (showSaveProjectDialog) {
-        var projectName by remember { mutableStateOf("") }
-        val currentSpoolForSave = selectedSpool
-        if (currentSpoolForSave != null) {
+        val spoolToSave = selectedSpool
+        if (spoolToSave != null) {
             AlertDialog(
                 onDismissRequest = { showSaveProjectDialog = false },
-                title = { Text("Projekt speichern") },
+                title = { Text(stringResource(R.string.more_projects)) },
                 text = {
                     OutlinedTextField(
-                        value = projectName,
-                        onValueChange = { projectName = it },
+                        value = projectNameInput,
+                        onValueChange = { projectNameInput = it },
                         label = { Text("Projektname") },
                         placeholder = { Text("z.B. Halterung Schreibtisch") },
                         singleLine = true
@@ -73,14 +74,14 @@ fun CostCalculatorScreen(
                 confirmButton = {
                     Button(
                         onClick = {
-                            val weightValue = materialWeight.replace(',', '.').toFloatOrNull()
-                            if (projectName.isNotBlank() && weightValue != null) {
+                            val parsedWeight = materialWeightInput.replace(',', '.').toFloatOrNull()
+                            if (projectNameInput.isNotBlank() && parsedWeight != null) {
                                 onAddProject(Project(
-                                    name = projectName,
-                                    spool = currentSpoolForSave,
-                                    materialWeight = weightValue,
+                                    name = projectNameInput,
+                                    spool = spoolToSave,
+                                    materialWeight = parsedWeight,
                                     machine = selectedMachine,
-                                    printDuration = printDuration.replace(',', '.').toFloatOrNull() ?: 0f,
+                                    printDuration = printDurationInput.replace(',', '.').toFloatOrNull() ?: 0f,
                                     materialCost = materialCostResult ?: 0f,
                                     machineCost = machineCostResult ?: 0f,
                                     electricityCost = electricityResult ?: 0f,
@@ -88,17 +89,15 @@ fun CostCalculatorScreen(
                                     profit = profitResult ?: 0f,
                                     totalCost = totalCost ?: 0f
                                 ))
-                                onSpoolUpdate(currentSpoolForSave.copy(remainingWeight = (currentSpoolForSave.remainingWeight - weightValue).toInt()))
+                                onSpoolUpdate(spoolToSave.copy(remainingWeight = (spoolToSave.remainingWeight - parsedWeight).toInt()))
 
                                 showSaveProjectDialog = false
-                                totalCost = null // Reset the view
-                                Toast.makeText(context, "Projekt '$projectName' gespeichert", Toast.LENGTH_SHORT).show()
-                            } else {
-                                Toast.makeText(context, "Bitte Projektnamen und Gewicht prüfen.", Toast.LENGTH_SHORT).show()
+                                totalCost = null
+                                Toast.makeText(context, "Projekt '$projectNameInput' gespeichert", Toast.LENGTH_SHORT).show()
                             }
                         },
-                        enabled = projectName.isNotBlank()
-                    ) { Text("Speichern & Abbuchen") }
+                        enabled = projectNameInput.isNotBlank()
+                    ) { Text("OK") }
                 },
                 dismissButton = {
                     TextButton(onClick = { showSaveProjectDialog = false }) { Text("Abbrechen") }
@@ -108,7 +107,7 @@ fun CostCalculatorScreen(
     }
 
     Scaffold(
-        topBar = { TopAppBar(title = { Text("3dkrv") }) }
+        topBar = { TopAppBar(title = { Text(stringResource(R.string.app_name)) }) }
     ) { innerPadding ->
         Column(
             modifier = Modifier
@@ -120,13 +119,13 @@ fun CostCalculatorScreen(
             Card(modifier = Modifier.fillMaxWidth(), colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)) {
                 Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        Text("Lager verwenden", modifier = Modifier.weight(1f))
+                        Text(stringResource(R.string.calc_use_inventory), modifier = Modifier.weight(1f))
                         Switch(checked = settings.useInventory, onCheckedChange = { onSettingsChange(settings.copy(useInventory = it)) })
                     }
                     if (settings.useInventory) {
-                        val currentSelectedS = selectedSpool
-                        if (currentSelectedS != null) {
-                            SpoolSelection(spools, currentSelectedS) { selectedSpool = it }
+                        val currentSpool = selectedSpool
+                        if (currentSpool != null) {
+                            SpoolSelection(spools, currentSpool) { selectedSpool = it }
                         } else {
                             Text("Keine Spulen im Lager.")
                         }
@@ -134,50 +133,50 @@ fun CostCalculatorScreen(
                         OutlinedTextField(
                             value = settings.manualPricePerGram,
                             onValueChange = { onSettingsChange(settings.copy(manualPricePerGram = it)) },
-                            label = { Text("Preis pro Gramm in €") },
+                            label = { Text(stringResource(R.string.calc_manual_price)) },
                             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                             modifier = Modifier.fillMaxWidth()
                         )
                     }
-                    OutlinedTextField(value = materialWeight, onValueChange = { materialWeight = it }, label = { Text("Materialgewicht in g") }, keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number), modifier = Modifier.fillMaxWidth())
+                    OutlinedTextField(value = materialWeightInput, onValueChange = { materialWeightInput = it }, label = { Text(stringResource(R.string.calc_weight)) }, keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number), modifier = Modifier.fillMaxWidth())
                 }
             }
 
             Card(modifier = Modifier.fillMaxWidth(), colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)) {
                 Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    Text("Drucker & Strom", style = MaterialTheme.typography.titleMedium)
-                    val currentSelectedM = selectedMachine
-                    if (currentSelectedM != null) {
-                        MachineSelection(machines, currentSelectedM) { selectedMachine = it }
+                    Text(stringResource(R.string.calc_section_machine), style = MaterialTheme.typography.titleMedium)
+                    val currentMachine = selectedMachine
+                    if (currentMachine != null) {
+                        MachineSelection(machines, currentMachine) { selectedMachine = it }
                     } else {
-                        Text("Keine Maschinen hinterlegt.")
+                        Text(stringResource(R.string.calc_no_machines))
                     }
                     
-                    OutlinedTextField(value = printDuration, onValueChange = { printDuration = it }, label = { Text("Druckdauer in h") }, keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number), modifier = Modifier.fillMaxWidth())
-                    OutlinedTextField(value = settings.electricityRate, onValueChange = { onSettingsChange(settings.copy(electricityRate = it)) }, label = { Text("Stromkosten in €/kWh") }, keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number), modifier = Modifier.fillMaxWidth())
+                    OutlinedTextField(value = printDurationInput, onValueChange = { printDurationInput = it }, label = { Text(stringResource(R.string.calc_duration)) }, keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number), modifier = Modifier.fillMaxWidth())
+                    OutlinedTextField(value = settings.electricityRate, onValueChange = { onSettingsChange(settings.copy(electricityRate = it)) }, label = { Text(stringResource(R.string.calc_electricity_rate)) }, keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number), modifier = Modifier.fillMaxWidth())
                 }
             }
 
             Card(modifier = Modifier.fillMaxWidth(), colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)) {
                 Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    Text("Arbeit & Gewinn", style = MaterialTheme.typography.titleMedium)
+                    Text(stringResource(R.string.calc_section_work), style = MaterialTheme.typography.titleMedium)
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        Text("Arbeitszeit einrechnen", modifier = Modifier.weight(1f))
+                        Text(stringResource(R.string.calc_include_work), modifier = Modifier.weight(1f))
                         Switch(checked = settings.includeWorkingTime, onCheckedChange = { onSettingsChange(settings.copy(includeWorkingTime = it)) })
                     }
-                    OutlinedTextField(value = settings.hourlyRate, onValueChange = { onSettingsChange(settings.copy(hourlyRate = it)) }, label = { Text("Stundenlohn in €") }, keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number), modifier = Modifier.fillMaxWidth(), enabled = settings.includeWorkingTime)
-                    OutlinedTextField(value = settings.workingTime, onValueChange = { onSettingsChange(settings.copy(workingTime = it)) }, label = { Text("Manuelle Arbeitszeit in h (optional)") }, keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number), modifier = Modifier.fillMaxWidth(), enabled = settings.includeWorkingTime)
+                    OutlinedTextField(value = settings.hourlyRate, onValueChange = { onSettingsChange(settings.copy(hourlyRate = it)) }, label = { Text(stringResource(R.string.calc_hourly_rate)) }, keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number), modifier = Modifier.fillMaxWidth(), enabled = settings.includeWorkingTime)
+                    OutlinedTextField(value = settings.workingTime, onValueChange = { onSettingsChange(settings.copy(workingTime = it)) }, label = { Text(stringResource(R.string.calc_work_time)) }, keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number), modifier = Modifier.fillMaxWidth(), enabled = settings.includeWorkingTime)
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        Text("Gewinn einrechnen", modifier = Modifier.weight(1f))
+                        Text(stringResource(R.string.calc_include_profit), modifier = Modifier.weight(1f))
                         Switch(checked = settings.includeProfit, onCheckedChange = { onSettingsChange(settings.copy(includeProfit = it)) })
                     }
-                    OutlinedTextField(value = settings.profitMargin, onValueChange = { onSettingsChange(settings.copy(profitMargin = it)) }, label = { Text("Gewinn in % (optional)") }, keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number), modifier = Modifier.fillMaxWidth(), enabled = settings.includeProfit)
+                    OutlinedTextField(value = settings.profitMargin, onValueChange = { onSettingsChange(settings.copy(profitMargin = it)) }, label = { Text(stringResource(R.string.calc_profit_margin)) }, keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number), modifier = Modifier.fillMaxWidth(), enabled = settings.includeProfit)
                 }
             }
 
             Button(modifier = Modifier.fillMaxWidth(), onClick = {
                 coroutineScope.launch {
-                    val priceToCalc = if (settings.useInventory) {
+                    val pricePerGram = if (settings.useInventory) {
                         selectedSpool?.pricePerGram ?: 0f
                     } else {
                         settings.manualPricePerGram.replace(',', '.').toFloatOrNull() ?: 0f
@@ -188,63 +187,63 @@ fun CostCalculatorScreen(
                         return@launch
                     }
 
-                    val weightToCalc = materialWeight.replace(',', '.').toFloatOrNull() ?: 0f
-                    val durationToCalc = printDuration.replace(',', '.').toFloatOrNull() ?: 0f
-                    val currentMachineForCalc = selectedMachine
-                    val powerToCalc = currentMachineForCalc?.powerInWatts ?: 0
-                    val eRateToCalc = settings.electricityRate.replace(',', '.').toFloatOrNull() ?: 0f
+                    val weight = materialWeightInput.replace(',', '.').toFloatOrNull() ?: 0f
+                    val duration = printDurationInput.replace(',', '.').toFloatOrNull() ?: 0f
+                    val machine = selectedMachine
+                    val powerWatts = machine?.powerInWatts ?: 0
+                    val eRate = settings.electricityRate.replace(',', '.').toFloatOrNull() ?: 0f
                     
-                    val matCostVal = priceToCalc * weightToCalc
-                    val machineCostVal = (currentMachineForCalc?.costPerHour ?: 0f) * durationToCalc
-                    val electricityCostVal = (powerToCalc.toFloat() / 1000) * durationToCalc * eRateToCalc
-                    val workCostVal = if (settings.includeWorkingTime) (settings.hourlyRate.replace(',', '.').toFloatOrNull() ?: 0f) * (settings.workingTime.replace(',', '.').toFloatOrNull() ?: 0f) else 0f
+                    val matCost = pricePerGram * weight
+                    val mCost = (machine?.costPerHour ?: 0f) * duration
+                    val eCost = (powerWatts.toFloat() / 1000) * duration * eRate
+                    val wCost = if (settings.includeWorkingTime) (settings.hourlyRate.replace(',', '.').toFloatOrNull() ?: 0f) * (settings.workingTime.replace(',', '.').toFloatOrNull() ?: 0f) else 0f
                     
-                    val costBeforeProfit = matCostVal + machineCostVal + electricityCostVal + workCostVal
-                    val marginVal = if (settings.includeProfit) (costBeforeProfit * (settings.profitMargin.replace(',', '.').toFloatOrNull() ?: 0f) / 100) else 0f
+                    val costBeforeProfit = matCost + mCost + eCost + wCost
+                    val margin = if (settings.includeProfit) (costBeforeProfit * (settings.profitMargin.replace(',', '.').toFloatOrNull() ?: 0f) / 100) else 0f
 
-                    materialCostResult = matCostVal
-                    machineCostResult = machineCostVal
-                    electricityResult = electricityCostVal
-                    workCostResult = workCostVal
-                    profitResult = marginVal
-                    totalCost = costBeforeProfit + marginVal
+                    materialCostResult = matCost
+                    machineCostResult = mCost
+                    electricityResult = eCost
+                    workCostResult = wCost
+                    profitResult = margin
+                    totalCost = costBeforeProfit + margin
                 }
             }) {
-                Text("Kosten berechnen")
+                Text(stringResource(R.string.calc_btn_calculate))
             }
 
-            totalCost?.let { finalTotalCost ->
+            totalCost?.let { costValue ->
                 Spacer(modifier = Modifier.height(16.dp))
                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
-                    Text("Gesamtkosten: ${NumberFormat.getCurrencyInstance().format(finalTotalCost)}", style = MaterialTheme.typography.headlineSmall)
+                    Text("${stringResource(R.string.calc_total_cost)}: ${NumberFormat.getCurrencyInstance().format(costValue)}", style = MaterialTheme.typography.headlineSmall)
                     IconButton(onClick = { 
                         coroutineScope.launch {
-                            createAndSharePdf(context, finalTotalCost, materialCostResult, machineCostResult, electricityResult, workCostResult) 
+                            createAndSharePdf(context, projectNameInput.ifBlank { null }, costValue, materialCostResult, machineCostResult, electricityResult, workCostResult, profitResult)
                         }
                     }) {
-                        Icon(Icons.Default.Share, contentDescription = "Als PDF exportieren")
+                        Icon(Icons.Default.Share, contentDescription = null)
                     }
                 }
                 Card(modifier = Modifier.fillMaxWidth().padding(top = 8.dp), colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)) {
                     Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                        Text("Kostenaufstellung", style = MaterialTheme.typography.titleMedium)
-                        materialCostResult?.let { Text("Materialkosten: ${NumberFormat.getCurrencyInstance().format(it)}") }
-                        machineCostResult?.let { Text("Maschinenkosten: ${NumberFormat.getCurrencyInstance().format(it)}") }
-                        electricityResult?.let { Text("Stromkosten: ${NumberFormat.getCurrencyInstance().format(it)}") }
-                        workCostResult?.let { Text("Arbeitskosten: ${NumberFormat.getCurrencyInstance().format(it)}") }
+                        Text(stringResource(R.string.calc_breakdown), style = MaterialTheme.typography.titleMedium)
+                        materialCostResult?.let { Text("${stringResource(R.string.calc_mat_cost)}: ${NumberFormat.getCurrencyInstance().format(it)}") }
+                        machineCostResult?.let { Text("${stringResource(R.string.calc_mach_cost)}: ${NumberFormat.getCurrencyInstance().format(it)}") }
+                        electricityResult?.let { Text("${stringResource(R.string.calc_elec_cost)}: ${NumberFormat.getCurrencyInstance().format(it)}") }
+                        workCostResult?.let { Text("${stringResource(R.string.calc_work_cost)}: ${NumberFormat.getCurrencyInstance().format(it)}") }
                     }
                 }
                 Spacer(modifier = Modifier.height(8.dp))
                 if (settings.useInventory) {
                     Button(modifier = Modifier.fillMaxWidth(), onClick = {
-                        val weightToCheck = materialWeight.replace(',', '.').toFloatOrNull() ?: 0f
-                        if (weightToCheck > (selectedSpool?.remainingWeight ?: 0)) {
+                        val checkW = materialWeightInput.replace(',', '.').toFloatOrNull() ?: 0f
+                        if (checkW > (selectedSpool?.remainingWeight ?: 0)) {
                             Toast.makeText(context, "Nicht genügend Material auf der Spule!", Toast.LENGTH_SHORT).show()
                         } else {
                             showSaveProjectDialog = true
                         }
                     }) {
-                        Text("Als Projekt speichern & Material abbuchen")
+                        Text(stringResource(R.string.calc_btn_save_project))
                     }
                 }
             }
@@ -254,24 +253,24 @@ fun CostCalculatorScreen(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SpoolSelection(spools: List<Spool>, selectedSpool: Spool, onSelectionChanged: (Spool) -> Unit) {
+fun SpoolSelection(spools: List<Spool>, currentSelectedSpool: Spool, onSelectionChanged: (Spool) -> Unit) {
     var expanded by remember { mutableStateOf(false) }
     ExposedDropdownMenuBox(expanded = expanded, onExpandedChange = { expanded = !expanded }) {
         TextField(
-            modifier = Modifier.menuAnchor(ExposedDropdownMenuAnchorType.PrimaryNotEditable, enabled = true),
+            modifier = Modifier.menuAnchor(type = MenuAnchorType.PrimaryNotEditable, enabled = true),
             readOnly = true,
-            value = "${selectedSpool.materialName} - ${selectedSpool.color} (${selectedSpool.remainingWeight}g)",
+            value = "${currentSelectedSpool.materialName} - ${currentSelectedSpool.color} (${currentSelectedSpool.remainingWeight}g)",
             onValueChange = { },
-            label = { Text("Spule aus Lager") },
+            label = { Text(stringResource(R.string.nav_inventory)) },
             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
             colors = ExposedDropdownMenuDefaults.textFieldColors(),
         )
         ExposedDropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
-            spools.forEach { selectionOption ->
+            spools.forEach { spoolOption ->
                 DropdownMenuItem(
-                    text = { Text("${selectionOption.materialName} - ${selectionOption.color} (${selectionOption.remainingWeight}g)") },
+                    text = { Text("${spoolOption.materialName} - ${spoolOption.color} (${spoolOption.remainingWeight}g)") },
                     onClick = {
-                        onSelectionChanged(selectionOption)
+                        onSelectionChanged(spoolOption)
                         expanded = false
                     },
                 )
@@ -282,24 +281,24 @@ fun SpoolSelection(spools: List<Spool>, selectedSpool: Spool, onSelectionChanged
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MachineSelection(machines: List<Machine>, selectedMachine: Machine, onSelectionChanged: (Machine) -> Unit) {
+fun MachineSelection(machines: List<Machine>, currentSelectedMachine: Machine, onSelectionChanged: (Machine) -> Unit) {
     var expanded by remember { mutableStateOf(false) }
     ExposedDropdownMenuBox(expanded = expanded, onExpandedChange = { expanded = !expanded }) {
         TextField(
-            modifier = Modifier.menuAnchor(ExposedDropdownMenuAnchorType.PrimaryNotEditable, enabled = true),
+            modifier = Modifier.menuAnchor(type = MenuAnchorType.PrimaryNotEditable, enabled = true),
             readOnly = true,
-            value = "${selectedMachine.name} (${NumberFormat.getCurrencyInstance().format(selectedMachine.costPerHour)}/h, ${selectedMachine.powerInWatts}W)",
+            value = "${currentSelectedMachine.name} (${NumberFormat.getCurrencyInstance().format(currentSelectedMachine.costPerHour)}/h, ${currentSelectedMachine.powerInWatts}W)",
             onValueChange = { },
-            label = { Text("Maschine") },
+            label = { Text(stringResource(R.string.calc_section_machine)) },
             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
             colors = ExposedDropdownMenuDefaults.textFieldColors(),
         )
         ExposedDropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
-            machines.forEach { selectionOption ->
+            machines.forEach { machineOption ->
                 DropdownMenuItem(
-                    text = { Text("${selectionOption.name} (${NumberFormat.getCurrencyInstance().format(selectedMachine.costPerHour)}/h, ${selectedMachine.powerInWatts}W)") },
+                    text = { Text("${machineOption.name} (${NumberFormat.getCurrencyInstance().format(machineOption.costPerHour)}/h, ${machineOption.powerInWatts}W)") },
                     onClick = {
-                        onSelectionChanged(selectionOption)
+                        onSelectionChanged(machineOption)
                         expanded = false
                     },
                 )

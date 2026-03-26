@@ -15,6 +15,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
@@ -24,27 +25,70 @@ import androidx.navigation.NavHostController
 fun AddSpoolScreen(
     navController: NavHostController,
     materials: List<Material>,
-    onAddSpool: (Spool) -> Unit
+    spools: List<Spool>,
+    onAddSpool: (Spool) -> Unit,
+    onUpdateSpool: (Spool) -> Unit
 ) {
     var materialName by remember { mutableStateOf("") }
     var color by remember { mutableStateOf("") }
     var manufacturer by remember { mutableStateOf("") }
-    var initialWeight by remember { mutableStateOf("") }
+    var initialWeight by remember { mutableStateOf("1000") }
     var purchasePrice by remember { mutableStateOf("") }
     var quantity by remember { mutableStateOf("1") }
     val context = LocalContext.current
 
-    if (materialName.isBlank() && materials.isNotEmpty()) {
-        materialName = materials.first().name
+    var showMergeDialog by remember { mutableStateOf<Spool?>(null) }
+
+    val manufacturerSuggestions = remember(spools) {
+        spools.mapNotNull { it.manufacturer }.distinct().sorted()
+    }
+    
+    val colorSuggestions = remember(spools) {
+        spools.map { it.color }.distinct().sorted()
+    }
+
+    LaunchedEffect(materials) {
+        if (materialName.isBlank() && materials.isNotEmpty()) {
+            materialName = materials.first().name
+        }
+    }
+
+    val spoolToMerge = showMergeDialog
+    if (spoolToMerge != null) {
+        AlertDialog(
+            onDismissRequest = { showMergeDialog = null },
+            title = { Text(stringResource(R.string.dialog_merge_title)) },
+            text = { Text(stringResource(R.string.dialog_merge_message)) },
+            confirmButton = {
+                Button(onClick = {
+                    val addedWeight = initialWeight.toIntOrNull() ?: 0
+                    onUpdateSpool(spoolToMerge.copy(
+                        remainingWeight = spoolToMerge.remainingWeight + addedWeight,
+                        initialWeight = spoolToMerge.initialWeight + addedWeight
+                    ))
+                    showMergeDialog = null
+                    navController.popBackStack()
+                }) { Text(stringResource(R.string.btn_merge)) }
+            },
+            dismissButton = {
+                TextButton(onClick = {
+                    val initialW = initialWeight.toIntOrNull() ?: 1000
+                    val price = purchasePrice.toFloatOrNull() ?: 0f
+                    onAddSpool(Spool(materialName = materialName, color = color, manufacturer = manufacturer.ifBlank { null }, initialWeight = initialW, remainingWeight = initialW, purchasePrice = price))
+                    showMergeDialog = null
+                    navController.popBackStack()
+                }) { Text(stringResource(R.string.btn_create_new)) }
+            }
+        )
     }
 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Neue Spule anlegen") },
+                title = { Text(stringResource(R.string.add_spool_title)) },
                 navigationIcon = {
                     IconButton(onClick = { navController.popBackStack() }) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Zurück")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null)
                     }
                 }
             )
@@ -57,39 +101,136 @@ fun AddSpoolScreen(
                 .verticalScroll(rememberScrollState()),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            var expanded by remember { mutableStateOf(false) }
-            ExposedDropdownMenuBox(expanded = expanded, onExpandedChange = { expanded = !it }) {
-                TextField(
-                    modifier = Modifier.menuAnchor(ExposedDropdownMenuAnchorType.PrimaryNotEditable).fillMaxWidth(),
-                    readOnly = true,
-                    value = materialName,
-                    onValueChange = { },
-                    label = { Text("Material") },
-                    trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) }
+            var materialExpanded by remember { mutableStateOf(false) }
+
+            if (materials.isEmpty()) {
+                OutlinedTextField(
+                    value = stringResource(R.string.error_no_materials),
+                    onValueChange = {},
+                    modifier = Modifier.fillMaxWidth(),
+                    enabled = false,
+                    label = { Text(stringResource(R.string.label_material)) }
                 )
-                ExposedDropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
-                    materials.forEach {
-                        DropdownMenuItem(
-                            text = { Text(it.name) },
-                            onClick = {
-                                materialName = it.name
-                                expanded = false
-                            }
-                        )
+            } else {
+                ExposedDropdownMenuBox(
+                    expanded = materialExpanded,
+                    onExpandedChange = { materialExpanded = it }
+                ) {
+                    OutlinedTextField(
+                        modifier = Modifier
+                            .menuAnchor(type = MenuAnchorType.PrimaryNotEditable, enabled = true)
+                            .fillMaxWidth(),
+                        readOnly = true,
+                        value = materialName,
+                        onValueChange = { },
+                        label = { Text(stringResource(R.string.label_material)) },
+                        trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = materialExpanded) },
+                        colors = ExposedDropdownMenuDefaults.outlinedTextFieldColors()
+                    )
+                    ExposedDropdownMenu(
+                        expanded = materialExpanded,
+                        onDismissRequest = { materialExpanded = false }
+                    ) {
+                        materials.forEach { material ->
+                            DropdownMenuItem(
+                                text = { Text(material.name) },
+                                onClick = {
+                                    materialName = material.name
+                                    materialExpanded = false
+                                },
+                                contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding
+                            )
+                        }
                     }
                 }
             }
 
-            OutlinedTextField(value = color, onValueChange = { color = it }, label = { Text("Farbe") }, modifier = Modifier.fillMaxWidth())
-            OutlinedTextField(value = manufacturer, onValueChange = { manufacturer = it }, label = { Text("Hersteller (optional)") }, modifier = Modifier.fillMaxWidth())
+            // Farbe mit Vorschlägen
+            var colorExpanded by remember { mutableStateOf(false) }
+            ExposedDropdownMenuBox(
+                expanded = colorExpanded,
+                onExpandedChange = { colorExpanded = it }
+            ) {
+                OutlinedTextField(
+                    modifier = Modifier
+                        .menuAnchor(type = MenuAnchorType.PrimaryEditable, enabled = true)
+                        .fillMaxWidth(),
+                    value = color,
+                    onValueChange = { 
+                        color = it
+                        colorExpanded = it.isNotBlank()
+                    },
+                    label = { Text(stringResource(R.string.label_color)) },
+                    trailingIcon = { 
+                        if (colorSuggestions.isNotEmpty()) {
+                            ExposedDropdownMenuDefaults.TrailingIcon(expanded = colorExpanded) 
+                        }
+                    },
+                    colors = ExposedDropdownMenuDefaults.outlinedTextFieldColors()
+                )
+                val filteredColorSuggestions = colorSuggestions.filter { it.contains(color, ignoreCase = true) }
+                if (filteredColorSuggestions.isNotEmpty()) {
+                    ExposedDropdownMenu(expanded = colorExpanded, onDismissRequest = { colorExpanded = false }) {
+                        filteredColorSuggestions.forEach { suggestion ->
+                            DropdownMenuItem(
+                                text = { Text(suggestion) },
+                                onClick = {
+                                    color = suggestion
+                                    colorExpanded = false
+                                }
+                            )
+                        }
+                    }
+                }
+            }
+
+            // Hersteller mit Vorschlägen
+            var manufacturerExpanded by remember { mutableStateOf(false) }
+            ExposedDropdownMenuBox(
+                expanded = manufacturerExpanded,
+                onExpandedChange = { manufacturerExpanded = it }
+            ) {
+                OutlinedTextField(
+                    modifier = Modifier
+                        .menuAnchor(type = MenuAnchorType.PrimaryEditable, enabled = true)
+                        .fillMaxWidth(),
+                    value = manufacturer,
+                    onValueChange = { 
+                        manufacturer = it
+                        manufacturerExpanded = it.isNotBlank()
+                    },
+                    label = { Text(stringResource(R.string.label_manufacturer)) },
+                    trailingIcon = { 
+                        if (manufacturerSuggestions.isNotEmpty()) {
+                            ExposedDropdownMenuDefaults.TrailingIcon(expanded = manufacturerExpanded) 
+                        }
+                    },
+                    colors = ExposedDropdownMenuDefaults.outlinedTextFieldColors()
+                )
+                val filteredSuggestions = manufacturerSuggestions.filter { it.contains(manufacturer, ignoreCase = true) }
+                if (filteredSuggestions.isNotEmpty()) {
+                    ExposedDropdownMenu(expanded = manufacturerExpanded, onDismissRequest = { manufacturerExpanded = false }) {
+                        filteredSuggestions.forEach { suggestion ->
+                            DropdownMenuItem(
+                                text = { Text(suggestion) },
+                                onClick = {
+                                    manufacturer = suggestion
+                                    manufacturerExpanded = false
+                                }
+                            )
+                        }
+                    }
+                }
+            }
+
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                OutlinedTextField(value = initialWeight, onValueChange = { initialWeight = it }, label = { Text("Gewicht (g)") }, keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number), modifier = Modifier.weight(1f))
-                OutlinedTextField(value = purchasePrice, onValueChange = { purchasePrice = it }, label = { Text("Preis (€)") }, keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number), modifier = Modifier.weight(1f))
+                OutlinedTextField(value = initialWeight, onValueChange = { initialWeight = it }, label = { Text(stringResource(R.string.label_weight)) }, keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number), modifier = Modifier.weight(1f))
+                OutlinedTextField(value = purchasePrice, onValueChange = { purchasePrice = it }, label = { Text(stringResource(R.string.label_price)) }, keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number), modifier = Modifier.weight(1f))
             }
             OutlinedTextField(
                 value = quantity,
                 onValueChange = { quantity = it },
-                label = { Text("Anzahl") },
+                label = { Text(stringResource(R.string.label_quantity)) },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                 modifier = Modifier.fillMaxWidth()
             )
@@ -101,18 +242,29 @@ fun AddSpoolScreen(
                     val count = quantity.toIntOrNull() ?: 1
 
                     if (materialName.isNotBlank() && color.isNotBlank() && initialW != null && price != null) {
-                        repeat(count) {
-                            onAddSpool(Spool(materialName = materialName, color = color, manufacturer = manufacturer.ifBlank { null }, initialWeight = initialW, remainingWeight = initialW, purchasePrice = price))
+                        val existing = spools.find { 
+                            it.materialName == materialName && 
+                            it.color == color && 
+                            it.manufacturer == manufacturer.ifBlank { null } &&
+                            it.initialWeight == initialW
                         }
-                        Toast.makeText(context, "$count Spule(n) hinzugefügt", Toast.LENGTH_SHORT).show()
-                        navController.popBackStack()
+
+                        if (existing != null) {
+                            showMergeDialog = existing
+                        } else {
+                            repeat(count) {
+                                onAddSpool(Spool(materialName = materialName, color = color, manufacturer = manufacturer.ifBlank { null }, initialWeight = initialW, remainingWeight = initialW, purchasePrice = price))
+                            }
+                            Toast.makeText(context, context.getString(R.string.toast_spools_added, count), Toast.LENGTH_SHORT).show()
+                            navController.popBackStack()
+                        }
                     } else {
-                        Toast.makeText(context, "Bitte alle Pflichtfelder korrekt ausfüllen", Toast.LENGTH_LONG).show()
+                        Toast.makeText(context, context.getString(R.string.toast_fill_all), Toast.LENGTH_LONG).show()
                     }
                 },
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Text("Spule(n) speichern")
+                Text(stringResource(R.string.btn_save_spool))
             }
         }
     }

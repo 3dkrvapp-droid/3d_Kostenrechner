@@ -12,6 +12,7 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
@@ -22,10 +23,10 @@ fun GuideScreen(navController: NavHostController) {
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Anleitung") },
+                title = { Text(stringResource(R.string.more_guide)) },
                 navigationIcon = {
                     IconButton(onClick = { navController.popBackStack() }) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Zurück")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null)
                     }
                 }
             )
@@ -38,31 +39,31 @@ fun GuideScreen(navController: NavHostController) {
                 .verticalScroll(rememberScrollState()),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            Text("Willkommen bei 3dkrv!", style = MaterialTheme.typography.headlineSmall)
-            Text("3dkrv steht für: 3D Druckkostenrechner und Verwaltung.", fontWeight = FontWeight.Bold)
-            Text("Diese App hilft dir, die Kosten deiner 3D-Drucke zu berechnen und dein Filament-Lager zu verwalten.")
+            Text(stringResource(R.string.guide_welcome), style = MaterialTheme.typography.headlineSmall)
+            Text(stringResource(R.string.guide_intro), fontWeight = FontWeight.Bold)
+            
+            Text(stringResource(R.string.guide_new_feature_title), style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+            Text(stringResource(R.string.guide_new_feature_desc))
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(8.dp))
 
-            Text("Der Rechner", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
-            Text("Im 'Rechner'-Tab kannst du die Kosten für einen Druck kalkulieren. Du hast zwei Modi:")
-            Text("1. Lager verwenden (Standard): Wähle eine deiner angelegten Spulen aus. Das verbrauchte Material wird nach der Berechnung und Speicherung als Projekt vom Restbestand der Spule abgezogen.")
-            Text("2. Manuelle Eingabe: Deaktiviere 'Lager verwenden', um einen Preis pro Gramm manuell einzugeben. Das ist ideal für schnelle Kalkulationen, ohne den Lagerbestand zu beeinflussen.")
+            Text(stringResource(R.string.guide_calc_title), style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
+            Text(stringResource(R.string.guide_calc_desc))
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(8.dp))
 
-            Text("Das Lager", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
-            Text("Im 'Lager'-Tab siehst du alle deine Filament-Spulen. Mit dem `+`-Knopf kannst du neue Spulen anlegen. Ein Klick auf eine Spule erlaubt es dir, das verbleibende Gewicht manuell anzupassen.")
+            Text(stringResource(R.string.guide_inventory_title), style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
+            Text(stringResource(R.string.guide_inventory_desc))
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(8.dp))
 
-            Text("Projekte", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
-            Text("Wenn du im Rechner eine Berechnung im Lager-Modus durchführst, kannst du sie als Projekt speichern. Im 'Mehr' -> 'Gespeicherte Projekte'-Menü findest du eine Liste all deiner gespeicherten Projekte und kannst dir deren Details ansehen.")
+            Text(stringResource(R.string.guide_backup_title), style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
+            Text(stringResource(R.string.guide_backup_desc))
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(8.dp))
 
-            Text("Statistiken", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
-            Text("Im 'Mehr' -> 'Statistiken'-Menü findest du eine visuelle Aufbereitung deiner Daten. Hier siehst du die Gesamtkosten aller Projekte, deine Ausgaben pro Monat in einem Balkendiagramm sowie deinen Gesamtverbrauch pro Materialtyp (PLA, PETG, etc.).")
+            Text(stringResource(R.string.more_statistics), style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
+            Text(stringResource(R.string.guide_stats_desc))
         }
     }
 }

@@ -24,6 +24,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import java.text.NumberFormat
@@ -38,10 +39,10 @@ fun ProjectsScreen(
     projects: List<Project>,
     onRemoveProject: (Project) -> Unit
 ) {
-    val dateFormat = remember { SimpleDateFormat("dd.MM.yyyy HH:mm", Locale.GERMAN) }
+    val dateFormat = remember { SimpleDateFormat("dd.MM.yyyy HH:mm", Locale.getDefault()) }
 
     Scaffold(
-        topBar = { TopAppBar(title = { Text("Gespeicherte Projekte") }) }
+        topBar = { TopAppBar(title = { Text(stringResource(R.string.more_projects)) }) }
     ) { innerPadding ->
         LazyColumn(
             modifier = Modifier
@@ -51,7 +52,7 @@ fun ProjectsScreen(
         ) {
             if (projects.isEmpty()) {
                 item {
-                    Text("Noch keine Projekte gespeichert. Bestätige einen Druck im Rechner, um ein Projekt anzulegen.")
+                    Text(stringResource(R.string.projects_empty))
                 }
             } else {
                 items(projects, key = { it.id }) { project ->
@@ -68,12 +69,12 @@ fun ProjectsScreen(
                             ) {
                                 Text(project.name, style = MaterialTheme.typography.titleMedium)
                                 IconButton(onClick = { onRemoveProject(project) }) {
-                                    Icon(Icons.Default.Delete, contentDescription = "Projekt löschen")
+                                    Icon(Icons.Default.Delete, contentDescription = null)
                                 }
                             }
                             Text(dateFormat.format(Date(project.date)), style = MaterialTheme.typography.bodySmall)
                             Spacer(modifier = Modifier.height(8.dp))
-                            Text("Gesamtkosten: ${NumberFormat.getCurrencyInstance().format(project.totalCost)}", style = MaterialTheme.typography.bodyLarge)
+                            Text("${stringResource(R.string.calc_total_cost)}: ${NumberFormat.getCurrencyInstance().format(project.totalCost)}", style = MaterialTheme.typography.bodyLarge)
                         }
                     }
                 }

@@ -1,11 +1,18 @@
 package com.example.a3dkostenrechner
 
 import android.app.Application
+import android.content.Context
+import android.net.ConnectivityManager
+import android.net.NetworkCapabilities
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.gson.JsonParser
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import java.net.URL
 
 class MainViewModel(application: Application) : AndroidViewModel(application) {
     private val dataStore = DataStore(application)
@@ -25,8 +32,12 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     private val _projects = MutableStateFlow<List<Project>>(emptyList())
     val projects = _projects.asStateFlow()
 
+    private val _latestVersion = MutableStateFlow<String?>(null)
+    val latestVersion = _latestVersion.asStateFlow()
+
     init {
         loadAllData()
+        checkForUpdates()
     }
 
     private fun loadAllData() {
@@ -36,6 +47,39 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             _settings.value = dataStore.loadSettings()
             _spools.value = dataStore.loadSpools()
             _projects.value = dataStore.loadProjects()
+        }
+    }
+
+    private fun isNetworkAvailable(): Boolean {
+        val connectivityManager = getApplication<Application>().getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        val network = connectivityManager.activeNetwork ?: return false
+        val capabilities = connectivityManager.getNetworkCapabilities(network) ?: return false
+        return capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
+    }
+
+    fun checkForUpdates() {
+        if (!isNetworkAvailable()) return
+
+        viewModelScope.launch {
+            withContext(Dispatchers.IO) {
+                try {
+                    val currentVersion = getApplication<Application>().packageManager
+                        .getPackageInfo(getApplication<Application>().packageName, 0).versionName ?: "1.0"
+                    
+                    val apiUri = "https://api.github.com/repos/3dkrvapp-droid/3d_Kostenrechner/releases/latest"
+                    val response = URL(apiUri).readText()
+                    val json = JsonParser.parseString(response).asJsonObject
+                    val latestV = json.get("tag_name").asString.replace("v", "")
+                    
+                    if (latestV != currentVersion) {
+                        _latestVersion.value = latestV
+                    } else {
+                        _latestVersion.value = null
+                    }
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
+            }
         }
     }
 

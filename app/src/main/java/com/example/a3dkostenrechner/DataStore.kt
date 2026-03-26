@@ -1,6 +1,7 @@
 package com.example.a3dkostenrechner
 
 import android.content.Context
+import androidx.core.content.edit
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import kotlinx.coroutines.Dispatchers
@@ -12,7 +13,7 @@ class DataStore(context: Context) {
 
     suspend fun saveMaterials(materials: List<Material>) = withContext(Dispatchers.IO) {
         val json = gson.toJson(materials)
-        sharedPreferences.edit().putString("materials", json).apply()
+        sharedPreferences.edit { putString("materials", json) }
     }
 
     suspend fun loadMaterials(): List<Material> = withContext(Dispatchers.IO) {
@@ -21,7 +22,7 @@ class DataStore(context: Context) {
             try {
                 val type = object : TypeToken<List<Material>>() {}.type
                 gson.fromJson(json, type)
-            } catch (e: Exception) {
+            } catch (_: Exception) {
                 createDefaultMaterials()
             }
         } else {
@@ -31,7 +32,7 @@ class DataStore(context: Context) {
 
     suspend fun saveMachines(machines: List<Machine>) = withContext(Dispatchers.IO) {
         val json = gson.toJson(machines)
-        sharedPreferences.edit().putString("machines", json).apply()
+        sharedPreferences.edit { putString("machines", json) }
     }
 
     suspend fun loadMachines(): List<Machine> = withContext(Dispatchers.IO) {
@@ -40,7 +41,7 @@ class DataStore(context: Context) {
             try {
                 val type = object : TypeToken<List<Machine>>() {}.type
                 gson.fromJson(json, type)
-            } catch (e: Exception) {
+            } catch (_: Exception) {
                 createDefaultMachines()
             }
         } else {
@@ -50,7 +51,7 @@ class DataStore(context: Context) {
 
     suspend fun saveSettings(settings: CalculationSettings) = withContext(Dispatchers.IO) {
         val json = gson.toJson(settings)
-        sharedPreferences.edit().putString("settings", json).apply()
+        sharedPreferences.edit { putString("settings", json) }
     }
 
     suspend fun loadSettings(): CalculationSettings = withContext(Dispatchers.IO) {
@@ -58,7 +59,7 @@ class DataStore(context: Context) {
         if (json != null) {
             try {
                 gson.fromJson(json, CalculationSettings::class.java)
-            } catch (e: Exception) {
+            } catch (_: Exception) {
                 CalculationSettings()
             }
         } else {
@@ -68,7 +69,7 @@ class DataStore(context: Context) {
 
     suspend fun saveSpools(spools: List<Spool>) = withContext(Dispatchers.IO) {
         val json = gson.toJson(spools)
-        sharedPreferences.edit().putString("spools", json).apply()
+        sharedPreferences.edit { putString("spools", json) }
     }
 
     suspend fun loadSpools(): List<Spool> = withContext(Dispatchers.IO) {
@@ -77,7 +78,7 @@ class DataStore(context: Context) {
             try {
                 val type = object : TypeToken<List<Spool>>() {}.type
                 gson.fromJson(json, type)
-            } catch (e: Exception) {
+            } catch (_: Exception) {
                 emptyList()
             }
         } else {
@@ -87,7 +88,7 @@ class DataStore(context: Context) {
 
     suspend fun saveProjects(projects: List<Project>) = withContext(Dispatchers.IO) {
         val json = gson.toJson(projects)
-        sharedPreferences.edit().putString("projects", json).apply()
+        sharedPreferences.edit { putString("projects", json) }
     }
 
     suspend fun loadProjects(): List<Project> = withContext(Dispatchers.IO) {
@@ -96,7 +97,7 @@ class DataStore(context: Context) {
             try {
                 val type = object : TypeToken<List<Project>>() {}.type
                 gson.fromJson(json, type)
-            } catch (e: Exception) {
+            } catch (_: Exception) {
                 emptyList()
             }
         } else {
@@ -105,7 +106,7 @@ class DataStore(context: Context) {
     }
 
     suspend fun clearAllData() = withContext(Dispatchers.IO) {
-        sharedPreferences.edit().clear().apply()
+        sharedPreferences.edit { clear() }
     }
 
     private fun createDefaultMaterials(): List<Material> = listOf(

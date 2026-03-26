@@ -10,6 +10,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import java.text.NumberFormat
 
@@ -24,7 +25,7 @@ fun StatisticsScreen(viewModel: StatisticsViewModel) {
     val months = remember { listOf("J", "F", "M", "A", "M", "J", "J", "A", "S", "O", "N", "D") }
 
     Scaffold(
-        topBar = { TopAppBar(title = { Text("Statistiken") }) }
+        topBar = { TopAppBar(title = { Text(stringResource(R.string.more_statistics)) }) }
     ) { innerPadding ->
         Column(
             modifier = Modifier
@@ -33,31 +34,31 @@ fun StatisticsScreen(viewModel: StatisticsViewModel) {
         ) {
             Card(modifier = Modifier.fillMaxWidth()) {
                 Column(modifier = Modifier.padding(16.dp)) {
-                    Text("Gesamtkosten aller Projekte", style = MaterialTheme.typography.titleMedium)
+                    Text(stringResource(R.string.stats_total_cost), style = MaterialTheme.typography.titleMedium)
                     Text(currencyFormat.format(totalCost), style = MaterialTheme.typography.headlineMedium)
                 }
             }
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            Text("Kosten pro Monat", style = MaterialTheme.typography.titleMedium)
+            Text(stringResource(R.string.stats_monthly_cost), style = MaterialTheme.typography.titleMedium)
             Spacer(modifier = Modifier.height(8.dp))
 
             if (monthlyCosts.values.any { it > 0f }) {
                 SimpleBarChart(monthlyCosts = monthlyCosts, months = months)
             } else {
-                Text("Noch keine Projekte für eine Monats-Statistik vorhanden.")
+                Text(stringResource(R.string.stats_no_data))
             }
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            Text("Materialverbrauch", style = MaterialTheme.typography.titleMedium)
+            Text(stringResource(R.string.stats_material_usage), style = MaterialTheme.typography.titleMedium)
             Spacer(modifier = Modifier.height(8.dp))
 
             Card(modifier = Modifier.fillMaxWidth()) {
                 Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
                     if (materialConsumption.isEmpty()) {
-                        Text("Noch keine Daten vorhanden.")
+                        Text(stringResource(R.string.stats_no_data))
                     } else {
                         materialConsumption.entries.forEach { (name, weight) ->
                             Row(

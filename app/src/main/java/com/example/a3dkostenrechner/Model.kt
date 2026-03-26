@@ -49,5 +49,6 @@ data class CalculationSettings(
     val hourlyRate: String = "25",
     val workingTime: String = "",
     val includeProfit: Boolean = false,
-    val profitMargin: String = ""
+    val profitMargin: String = "",
+    val language: String = "system" // "system", "de", "en"
 )

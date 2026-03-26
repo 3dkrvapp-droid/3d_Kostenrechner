@@ -1,35 +1,36 @@
-# 3dkrv - 3D-Druck Kosten Rechner Verwaltung
+# 3dkrv - 3D-Druck Kostenrechner & Verwaltung
 
-3dkrv ist eine moderne Android-App zur präzisen Berechnung von 3D-Druckkosten und zur effizienten Verwaltung deines Filament-Lagers.
+Eine moderne Android-App zur präzisen Berechnung von 3D-Druckkosten und zur effizienten Verwaltung deines Filament-Lagers.
 
 ## 🚀 Funktionen
 
-- **Kostenrechner:** Berechne Material-, Strom-, Maschinen- und Arbeitskosten für deine Drucke.
-- **Lagerverwaltung:** Behalte den Überblick über dein Filament. Buche verbrauchtes Material direkt nach der Kalkulation ab.
-- **Projekthistorie:** Speichere deine Berechnungen als Projekte mit detaillierter Kostenaufstellung.
-- **Statistiken:** Visualisiere deine monatlichen Ausgaben und deinen Materialverbrauch (PLA, PETG, etc.).
-- **Anleitung:** Eine integrierte Hilfe erklärt dir alle Funktionen der App.
+- **Präzise Kostenkalkulation**: Berechnet Material-, Strom-, Drucker- und Arbeitskosten.
+- **Filament-Lagerverwaltung**: Behalte den Überblick über deine Spulen (Material, Farbe, Hersteller, Restgewicht).
+- **Intelligente Bestandsführung**: Beim Hinzufügen neuer Spulen erkennt die App Dubletten und bietet an, das Gewicht zum bestehenden Bestand hinzuzufügen.
+- **Projektarchiv**: Speichere deine Berechnungen als Projekte, inklusive automatischer Material-Abbuchung vom Lager.
+- **Detaillierte Statistiken**: Visualisiere deine Ausgaben und Materialverbräuche über verschiedene Zeiträume.
+- **Sprachunterstützung**: Volle Lokalisierung in Deutsch und Englisch (Systemstandard oder manuell wählbar).
+- **Backup & Restore**: Exportiere und importiere deine Daten als JSON-Datei zur Sicherung oder für den Gerätewechsel.
+- **GitHub Update-Check**: Automatische Prüfung auf neue Versionen direkt über GitHub.
 
-## 🛠️ Technologien
+## 🛠️ Installation
 
-- **Sprache:** [Kotlin](https://kotlinlang.org/)
-- **UI-Framework:** [Jetpack Compose](https://developer.android.com/compose) mit Material 3
-- **Architektur:** MVVM (Model-View-ViewModel)
-- **Datenhaltung:** SharedPreferences mit JSON-Serialisierung (Gson)
+1. Lade die neueste APK von der [Release-Seite](https://github.com/3dkrvapp-droid/3d_Kostenrechner/releases) herunter.
+2. Installiere die APK auf deinem Android-Gerät (Sideloading aktivieren).
 
-## ⚖️ Lizenz
+## 💻 Entwicklung
 
-Dieses Projekt ist unter der **GNU General Public License Version 3 (GPL v3)** lizenziert. Das bedeutet:
-- Die Software darf frei genutzt, kopiert und weitergegeben werden.
-- Der Quellcode muss zugänglich bleiben.
-- Änderungen müssen ebenfalls unter der GPL v3 veröffentlicht werden.
+Die App wurde mit modernen Android-Technologien entwickelt:
+- **Kotlin** & **Jetpack Compose** für die UI.
+- **Material 3** Design-System.
+- **StateFlow** für reaktives Daten-Management.
+- **GSON** für die Daten-Serialisierung.
 
-Details findest du in der [LICENSE](./LICENSE) Datei.
+## 🤝 Unterstützen
 
-## ☕ Spenden
+Wenn dir die App gefällt, kannst du die Entwicklung unterstützen:
+- [Ko-fi Support](https://ko-fi.com/3dkrv)
 
-Wenn dir die App gefällt, kannst du die Entwicklung mit einer kleinen Spende unterstützen:
-[Kaffee spendieren auf Ko-fi](https://ko-fi.com/3dkrv)
+## 📄 Lizenz
 
----
-Erstellt von Thomas Fellner
+Dieses Projekt ist unter der MIT-Lizenz lizenziert. Weitere Details findest du im Impressum der App.

@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <paths>
-    <external-cache-path name="shared_pdf" path="." />
+    <cache-path name="cached_files" path="." />
+    <external-cache-path name="external_cached_files" path="." />
 </paths>

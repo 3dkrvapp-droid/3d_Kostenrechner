@@ -1,3 +1,101 @@
 <resources>
-    <string name="app_name">3dkrv - 3D Druck Kosten Rechner Verwaltung</string>
+    <string name="app_name">3dkrv</string>
+    <string name="nav_calculator">Rechner</string>
+    <string name="nav_inventory">Lager</string>
+    <string name="nav_more">Mehr</string>
+
+    <string name="more_guide">Anleitung</string>
+    <string name="more_projects">Gespeicherte Projekte</string>
+    <string name="more_statistics">Statistiken</string>
+    <string name="more_settings">Einstellungen</string>
+    <string name="more_impressum">Impressum</string>
+    <string name="more_support_dev">Entwicklung unterstützen</string>
+    <string name="more_update_available">Update verfügbar: v%s</string>
+    <string name="more_download_update">Klicken zum Herunterladen</string>
+    <string name="more_version">Version: %s</string>
+    <string name="more_github">GitHub Repository</string>
+
+    <string name="add_spool_title">Neue Spule anlegen</string>
+    <string name="label_material">Material</string>
+    <string name="label_color">Farbe</string>
+    <string name="label_manufacturer">Hersteller (optional)</string>
+    <string name="label_weight">Gewicht (g)</string>
+    <string name="label_price">Preis (€)</string>
+    <string name="label_quantity">Anzahl</string>
+    <string name="btn_save_spool">Spule(n) speichern</string>
+    <string name="error_no_materials">Keine Materialien definiert</string>
+    <string name="toast_spools_added">%d Spule(n) hinzugefügt</string>
+    <string name="toast_fill_all">Bitte alle Pflichtfelder korrekt ausfüllen</string>
+    <string name="dialog_merge_title">Spule bereits vorhanden</string>
+    <string name="dialog_merge_message">Möchtest du das Gewicht zum bestehenden Bestand hinzufügen oder eine neue Spule anlegen?</string>
+    <string name="btn_merge">Bestand erhöhen</string>
+    <string name="btn_create_new">Neu anlegen</string>
+
+    <string name="settings_title">Einstellungen</string>
+    <string name="settings_language">Sprache (Language)</string>
+    <string name="settings_lang_system">Systemstandard</string>
+    <string name="settings_lang_de">Deutsch</string>
+    <string name="settings_lang_en">English</string>
+    <string name="settings_manage_materials">Materialien verwalten</string>
+    <string name="settings_manage_machines">Drucker verwalten</string>
+    <string name="settings_backup_restore">Backup &amp; Wiederherstellung</string>
+    <string name="settings_backup_btn">Backup erstellen</string>
+    <string name="settings_restore_btn">Daten wiederherstellen</string>
+    <string name="settings_backup_desc">Daten in Datei exportieren</string>
+    <string name="settings_restore_desc">Daten aus Datei importieren</string>
+    <string name="settings_section_admin">Verwaltung</string>
+
+    <string name="calc_use_inventory">Lager verwenden</string>
+    <string name="calc_manual_price">Preis pro Gramm in €</string>
+    <string name="calc_weight">Materialgewicht in g</string>
+    <string name="calc_section_machine">Drucker &amp; Strom</string>
+    <string name="calc_no_machines">Keine Maschinen hinterlegt</string>
+    <string name="calc_duration">Druckdauer in h</string>
+    <string name="calc_electricity_rate">Stromkosten in €/kWh</string>
+    <string name="calc_section_work">Arbeit &amp; Gewinn</string>
+    <string name="calc_include_work">Arbeitszeit einrechnen</string>
+    <string name="calc_hourly_rate">Stundenlohn in €</string>
+    <string name="calc_work_time">Manuelle Arbeitszeit in h (optional)</string>
+    <string name="calc_include_profit">Gewinn einrechnen</string>
+    <string name="calc_profit_margin">Gewinn in % (optional)</string>
+    <string name="calc_btn_calculate">Kosten berechnen</string>
+    <string name="calc_total_cost">Gesamtkosten</string>
+    <string name="calc_breakdown">Kostenaufstellung</string>
+    <string name="calc_mat_cost">Materialkosten</string>
+    <string name="calc_mach_cost">Maschinenkosten</string>
+    <string name="calc_elec_cost">Stromkosten</string>
+    <string name="calc_work_cost">Arbeitskosten</string>
+    <string name="calc_profit_label">Gewinnaufschlag</string>
+    <string name="calc_btn_save_project">Als Projekt speichern &amp; Material abbuchen</string>
+
+    <string name="inventory_title">Lagerbestand (%d Spulen)</string>
+    <string name="inventory_rest">Rest: %dg / %dg</string>
+    <string name="inventory_edit_weight">Restgewicht anpassen: %s</string>
+    <string name="inventory_new_weight_label">Neues Restgewicht in Gramm</string>
+
+    <string name="stats_total_cost">Gesamtkosten aller Projekte</string>
+    <string name="stats_monthly_cost">Kosten pro Monat</string>
+    <string name="stats_material_usage">Materialverbrauch</string>
+    <string name="stats_no_data">Noch keine Daten vorhanden.</string>
+
+    <string name="projects_empty">Noch keine Projekte gespeichert.</string>
+
+    <string name="guide_welcome">Willkommen bei 3dkrv!</string>
+    <string name="guide_intro">3dkrv: 3D-Druck Kostenrechner &amp; Verwaltung.</string>
+    <string name="guide_new_feature_title">Profi-Features &amp; PDF-Export</string>
+    <string name="guide_new_feature_desc">Du kannst jede Kalkulation und jedes gespeicherte Projekt als professionelle PDF exportieren. Klicke dazu auf das Share-Icon im Rechner oder in der Projektansicht.</string>
+    <string name="guide_calc_title">Kosten kalkulieren</string>
+    <string name="guide_calc_desc">Berechne Material, Strom, Druckerverschleiß und Arbeitszeit. Die Ergebnisse können als Projekt archiviert oder direkt geteilt werden.</string>
+    <string name="guide_inventory_title">Filament-Lager</string>
+    <string name="guide_inventory_desc">Die App erkennt Dubletten beim Hinzufügen. Du kannst wählen, ob du den Bestand einer bestehenden Spule erhöhen oder eine neue Spule anlegen willst.</string>
+    <string name="guide_backup_title">Backup &amp; Sprache</string>
+    <string name="guide_backup_desc">In den Einstellungen kannst du Backups deiner Daten erstellen. Zudem lässt sich die App-Sprache fest auf Deutsch oder Englisch einstellen.</string>
+    <string name="guide_stats_desc">Behalte den Überblick über deine Ausgaben und Materialverbräuche in grafischen Statistiken und deiner Projektliste.</string>
+
+    <string name="pdf_header">3dkrv - KOSTENAUFSTELLUNG</string>
+    <string name="pdf_subtitle">Präzise 3D-Druck Kalkulation</string>
+    <string name="pdf_created_at">Erstellt am: %s</string>
+    <string name="pdf_total_label">GESAMTKOSTEN (Netto)</string>
+    <string name="pdf_footer">Dieses Dokument wurde mit der 3dkrv App erstellt.</string>
+    <string name="pdf_share_chooser">Kostenaufstellung versenden</string>
 </resources>
