@@ -1,5 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-
-    <style name="Theme._3dKostenrechner" parent="android:Theme.Material.Light.NoActionBar" />
+    <!-- Wir nutzen das Standard Material Light Theme, das in jedem Android vorhanden ist -->
+    <style name="Theme._3dKostenrechner" parent="android:Theme.Material.Light.NoActionBar">
+        <!-- Statusleiste transparent machen, damit Compose Edge-to-Edge funktioniert -->
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:windowLightStatusBar">true</item>
+    </style>
 </resources>
