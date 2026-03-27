@@ -11,6 +11,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -21,6 +22,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -31,12 +33,30 @@ fun SpoolManagementScreen(
     onUpdateSpool: (Spool) -> Unit
 ) {
     var spoolToEdit by remember { mutableStateOf<Spool?>(null) }
+    val scope = rememberCoroutineScope()
+    val context = LocalContext.current
     
     val sortedSpools = remember(spools) {
         spools.sortedBy { it.materialName }
     }
 
     Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text(stringResource(R.string.nav_inventory)) },
+                actions = {
+                    if (spools.isNotEmpty()) {
+                        IconButton(onClick = {
+                            scope.launch {
+                                exportInventoryPdf(context, spools)
+                            }
+                        }) {
+                            Icon(Icons.Default.Share, contentDescription = "Bestand exportieren")
+                        }
+                    }
+                }
+            )
+        },
         floatingActionButton = {
             FloatingActionButton(onClick = { navController.navigate("addSpool") }) {
                 Icon(Icons.Default.Add, contentDescription = null)
