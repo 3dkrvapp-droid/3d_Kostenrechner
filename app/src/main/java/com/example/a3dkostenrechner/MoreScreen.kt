@@ -2,6 +2,7 @@ package com.example.a3dkostenrechner
 
 import android.content.Intent
 import android.net.Uri
+import android.widget.Toast
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -76,8 +77,12 @@ fun MoreScreen(navController: NavHostController, mainViewModel: MainViewModel) {
                     .padding(horizontal = 16.dp),
                 colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.tertiaryContainer),
                 onClick = {
-                    val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://ko-fi.com/3dkrv"))
-                    context.startActivity(intent)
+                    try {
+                        val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://ko-fi.com/3dkrv"))
+                        context.startActivity(intent)
+                    } catch (e: Exception) {
+                        Toast.makeText(context, "Link konnte nicht geöffnet werden", Toast.LENGTH_SHORT).show()
+                    }
                 }
             ) {
                 Row(modifier = Modifier.padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
@@ -89,7 +94,7 @@ fun MoreScreen(navController: NavHostController, mainViewModel: MainViewModel) {
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Update Sektion (NUR anzeigen wenn latestVersion nicht null ist)
+            // Update Sektion (NUR anzeigen wenn eine HÖHERE Version verfügbar ist)
             latestVersion?.let { version ->
                 Card(
                     modifier = Modifier
@@ -97,8 +102,12 @@ fun MoreScreen(navController: NavHostController, mainViewModel: MainViewModel) {
                         .padding(horizontal = 16.dp),
                     colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer),
                     onClick = {
-                        val intent = Intent(Intent.ACTION_VIEW, Uri.parse("$githubUrl/releases/latest"))
-                        context.startActivity(intent)
+                        try {
+                            val intent = Intent(Intent.ACTION_VIEW, Uri.parse("$githubUrl/releases/latest"))
+                            context.startActivity(intent)
+                        } catch (e: Exception) {
+                            Toast.makeText(context, "Browser konnte nicht geöffnet werden", Toast.LENGTH_SHORT).show()
+                        }
                     }
                 ) {
                     Row(modifier = Modifier.padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
@@ -121,8 +130,12 @@ fun MoreScreen(navController: NavHostController, mainViewModel: MainViewModel) {
             ) {
                  Text(stringResource(R.string.more_version, currentVersion), style = MaterialTheme.typography.bodySmall)
                  TextButton(onClick = {
-                     val intent = Intent(Intent.ACTION_VIEW, Uri.parse("$githubUrl/releases"))
-                     context.startActivity(intent)
+                     try {
+                         val intent = Intent(Intent.ACTION_VIEW, Uri.parse("$githubUrl/releases"))
+                         context.startActivity(intent)
+                     } catch (e: Exception) {
+                         // Fehler ignorieren oder Toast
+                     }
                  }) {
                      Text(stringResource(R.string.more_github), style = MaterialTheme.typography.labelSmall)
                  }

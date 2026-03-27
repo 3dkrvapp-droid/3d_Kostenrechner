@@ -33,7 +33,6 @@ fun SettingsScreen(
     val gson = Gson()
     val settings by mainViewModel.settings.collectAsState()
 
-    // Backup Launcher
     val createDocumentLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.CreateDocument("application/json")
     ) { uri ->
@@ -52,14 +51,13 @@ fun SettingsScreen(
                         }
                     }
                     Toast.makeText(context, "Backup erfolgreich erstellt", Toast.LENGTH_SHORT).show()
-                } catch (e: Exception) {
+                } catch (_: Exception) {
                     Toast.makeText(context, "Fehler beim Backup", Toast.LENGTH_SHORT).show()
                 }
             }
         }
     }
 
-    // Restore Launcher
     val openDocumentLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.OpenDocument()
     ) { uri ->
@@ -67,11 +65,14 @@ fun SettingsScreen(
             scope.launch {
                 try {
                     context.contentResolver.openInputStream(it)?.use { stream ->
-                        val json = Scanner(stream).useDelimiter("\\A").next()
-                        // Hinweis: Typprüfung hier vereinfacht
-                        Toast.makeText(context, "Import gestartet", Toast.LENGTH_SHORT).show()
+                        val jsonContent = Scanner(stream).useDelimiter("\\A").next()
+                        if (mainViewModel.restoreFromBackup(jsonContent)) {
+                            Toast.makeText(context, "Daten erfolgreich wiederhergestellt", Toast.LENGTH_SHORT).show()
+                        } else {
+                            Toast.makeText(context, "Backup-Datei ungültig", Toast.LENGTH_SHORT).show()
+                        }
                     }
-                } catch (e: Exception) {
+                } catch (_: Exception) {
                     Toast.makeText(context, "Fehler beim Import", Toast.LENGTH_SHORT).show()
                 }
             }
@@ -95,7 +96,6 @@ fun SettingsScreen(
                 .padding(innerPadding)
                 .verticalScroll(rememberScrollState())
         ) {
-            // Sektion: Sprache
             Text(
                 stringResource(R.string.settings_language),
                 modifier = Modifier.padding(16.dp),
@@ -124,34 +124,15 @@ fun SettingsScreen(
                     }
                 }
                 DropdownMenu(expanded = langExpanded, onDismissRequest = { langExpanded = false }) {
-                    DropdownMenuItem(
-                        text = { Text(stringResource(R.string.settings_lang_system)) },
-                        onClick = {
-                            mainViewModel.updateSettings(settings.copy(language = "system"))
-                            langExpanded = false
-                        }
-                    )
-                    DropdownMenuItem(
-                        text = { Text(stringResource(R.string.settings_lang_de)) },
-                        onClick = {
-                            mainViewModel.updateSettings(settings.copy(language = "de"))
-                            langExpanded = false
-                        }
-                    )
-                    DropdownMenuItem(
-                        text = { Text(stringResource(R.string.settings_lang_en)) },
-                        onClick = {
-                            mainViewModel.updateSettings(settings.copy(language = "en"))
-                            langExpanded = false
-                        }
-                    )
+                    DropdownMenuItem(text = { Text(stringResource(R.string.settings_lang_system)) }, onClick = { mainViewModel.updateSettings(settings.copy(language = "system")); langExpanded = false })
+                    DropdownMenuItem(text = { Text(stringResource(R.string.settings_lang_de)) }, onClick = { mainViewModel.updateSettings(settings.copy(language = "de")); langExpanded = false })
+                    DropdownMenuItem(text = { Text(stringResource(R.string.settings_lang_en)) }, onClick = { mainViewModel.updateSettings(settings.copy(language = "en")); langExpanded = false })
                 }
             }
 
             Spacer(modifier = Modifier.height(16.dp))
             HorizontalDivider()
 
-            // Sektion: Verwaltung
             Text(
                 stringResource(R.string.settings_section_admin),
                 modifier = Modifier.padding(16.dp),
@@ -171,7 +152,6 @@ fun SettingsScreen(
 
             HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
             
-            // Sektion: Backup
             Text(
                 stringResource(R.string.settings_backup_restore),
                 modifier = Modifier.padding(16.dp),

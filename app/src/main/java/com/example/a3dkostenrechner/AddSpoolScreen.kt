@@ -62,9 +62,12 @@ fun AddSpoolScreen(
             confirmButton = {
                 Button(onClick = {
                     val addedWeight = initialWeight.toIntOrNull() ?: 0
+                    val addedPrice = purchasePrice.replace(',', '.').toFloatOrNull() ?: 0f
+                    // Korrektur: Gewicht UND Preis addieren
                     onUpdateSpool(spoolToMerge.copy(
                         remainingWeight = spoolToMerge.remainingWeight + addedWeight,
-                        initialWeight = spoolToMerge.initialWeight + addedWeight
+                        initialWeight = spoolToMerge.initialWeight + addedWeight,
+                        purchasePrice = spoolToMerge.purchasePrice + addedPrice
                     ))
                     showMergeDialog = null
                     navController.popBackStack()
@@ -73,7 +76,7 @@ fun AddSpoolScreen(
             dismissButton = {
                 TextButton(onClick = {
                     val initialW = initialWeight.toIntOrNull() ?: 1000
-                    val price = purchasePrice.toFloatOrNull() ?: 0f
+                    val price = purchasePrice.replace(',', '.').toFloatOrNull() ?: 0f
                     onAddSpool(Spool(materialName = materialName, color = color, manufacturer = manufacturer.ifBlank { null }, initialWeight = initialW, remainingWeight = initialW, purchasePrice = price))
                     showMergeDialog = null
                     navController.popBackStack()
@@ -145,7 +148,6 @@ fun AddSpoolScreen(
                 }
             }
 
-            // Farbe mit Vorschlägen
             var colorExpanded by remember { mutableStateOf(false) }
             ExposedDropdownMenuBox(
                 expanded = colorExpanded,
@@ -184,7 +186,6 @@ fun AddSpoolScreen(
                 }
             }
 
-            // Hersteller mit Vorschlägen
             var manufacturerExpanded by remember { mutableStateOf(false) }
             ExposedDropdownMenuBox(
                 expanded = manufacturerExpanded,

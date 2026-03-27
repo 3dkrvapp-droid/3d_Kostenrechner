@@ -6,7 +6,9 @@ import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.gson.Gson
 import com.google.gson.JsonParser
+import com.google.gson.reflect.TypeToken
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -16,6 +18,7 @@ import java.net.URL
 
 class MainViewModel(application: Application) : AndroidViewModel(application) {
     private val dataStore = DataStore(application)
+    private val gson = Gson()
 
     private val _materials = MutableStateFlow<List<Material>>(emptyList())
     val materials = _materials.asStateFlow()
@@ -57,6 +60,21 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         return capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
     }
 
+    // Hilfsfunktion für robusten Versionsvergleich
+    private fun isVersionNewer(current: String, latest: String): Boolean {
+        val currentParts = current.split(".").map { it.toIntOrNull() ?: 0 }
+        val latestParts = latest.split(".").map { it.toIntOrNull() ?: 0 }
+        val maxLength = maxOf(currentParts.size, latestParts.size)
+        
+        for (i in 0 until maxLength) {
+            val curr = currentParts.getOrElse(i) { 0 }
+            val late = latestParts.getOrElse(i) { 0 }
+            if (late > curr) return true
+            if (late < curr) return false
+        }
+        return false
+    }
+
     fun checkForUpdates() {
         if (!isNetworkAvailable()) return
 
@@ -71,15 +89,54 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                     val json = JsonParser.parseString(response).asJsonObject
                     val latestV = json.get("tag_name").asString.replace("v", "")
                     
-                    if (latestV != currentVersion) {
+                    if (isVersionNewer(currentVersion, latestV)) {
                         _latestVersion.value = latestV
                     } else {
                         _latestVersion.value = null
                     }
-                } catch (e: Exception) {
-                    e.printStackTrace()
+                } catch (_: Exception) {
                 }
             }
+        }
+    }
+
+    fun restoreFromBackup(jsonContent: String): Boolean {
+        return try {
+            val type = object : TypeToken<Map<String, Any>>() {}.type
+            val data: Map<String, Any> = gson.fromJson(jsonContent, type)
+            
+            viewModelScope.launch {
+                (data["materials"] as? List<*>)?.let { list ->
+                    val materialsJson = gson.toJson(list)
+                    val materialList: List<Material> = gson.fromJson(materialsJson, object : TypeToken<List<Material>>() {}.type)
+                    _materials.value = materialList
+                    dataStore.saveMaterials(materialList)
+                }
+                
+                (data["machines"] as? List<*>)?.let { list ->
+                    val machinesJson = gson.toJson(list)
+                    val machineList: List<Machine> = gson.fromJson(machinesJson, object : TypeToken<List<Machine>>() {}.type)
+                    _machines.value = machineList
+                    dataStore.saveMachines(machineList)
+                }
+
+                (data["spools"] as? List<*>)?.let { list ->
+                    val spoolsJson = gson.toJson(list)
+                    val spoolList: List<Spool> = gson.fromJson(spoolsJson, object : TypeToken<List<Spool>>() {}.type)
+                    _spools.value = spoolList
+                    dataStore.saveSpools(spoolList)
+                }
+
+                (data["projects"] as? List<*>)?.let { list ->
+                    val projectsJson = gson.toJson(list)
+                    val projectList: List<Project> = gson.fromJson(projectsJson, object : TypeToken<List<Project>>() {}.type)
+                    _projects.value = projectList
+                    dataStore.saveProjects(projectList)
+                }
+            }
+            true
+        } catch (_: Exception) {
+            false
         }
     }
 
@@ -167,7 +224,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     fun clearCache() {
         viewModelScope.launch {
             dataStore.clearAllData()
-            loadAllData() // Reload default data
+            loadAllData()
         }
     }
 }
